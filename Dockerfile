@@ -11,7 +11,7 @@
 #
 # REQUIRED FILES TO BUILD THIS IMAGE
 # ----------------------------------
-# (1) jdk-8u25-linux-x64.rpm
+# (1) jdk-8u5-linux-x64.rpm
 #     Download from http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
 #
 # HOW TO BUILD THIS IMAGE
@@ -22,7 +22,7 @@
 #
 
 # Pull base image.
-FROM oraclelinux:7.0 
+FROM fedora:20
 
 # Maintainer
 # ----------
@@ -30,7 +30,7 @@ MAINTAINER Bruno Borges <bruno.borges@oracle.com>
 
 # Environment variables required for this build (do NOT change)
 # -------------------------------------------------------------
-ENV JAVA_RPM jdk-8u25-linux-x64.rpm
+ENV JAVA_RPM jdk-8u5-linux-x64.rpm
 ENV GLASSFISH_PKG http://dlc-cdn.sun.com/glassfish/4.1/release/glassfish-4.1.zip
 ENV PKG_FILE_NAME glassfish-4.1.zip
 
@@ -57,6 +57,9 @@ EXPOSE 4848 8080 8181
 USER glassfish
 WORKDIR /opt/glassfish/glassfish4/bin
 
+# Add mysql connector
+ADD mysql-connector-java-5.0.8-bin.jar /opt/glassfish/glassfish4/glassfish/lib/
+
 # User: admin / Pass: glassfish
 RUN echo "admin;{SSHA256}80e0NeB6XBWXsIPa7pT54D9JZ5DR5hGQV1kN1OAsgJePNXY6Pl0EIw==;asadmin" > /opt/glassfish/glassfish4/glassfish/domains/domain1/config/admin-keyfile
 RUN echo "AS_ADMIN_PASSWORD=glassfish" > pwdfile
@@ -66,6 +69,8 @@ RUN \
   ./asadmin start-domain && \
   ./asadmin --user admin --passwordfile pwdfile enable-secure-admin && \
   ./asadmin stop-domain
+
+
 
 RUN echo "export PATH=$PATH:/opt/glassfish/glassfish4/bin" >> /opt/glassfish/.bashrc
 
